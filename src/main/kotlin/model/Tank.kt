@@ -8,10 +8,10 @@ import org.itheima.kotlin.game.core.Painter
 
 class Tank(override var x: Int, override var y: Int) : MoveAble {
     override var height: Int = Config.block
-    override var weight: Int = Config.block
+    override var width: Int = Config.block
     override var currentDirection = Direction.UP
     override var speed = 8//每步走的像素点数
-    private  var badDirection: Direction? = null
+    private var badDirection: Direction? = null
     override fun willCollision(block: BlockAble): Direction? {
         //如已经发生碰撞无法移动，使用下一步的值进行预测下一步是否发生碰撞
         var x = this.x
@@ -38,9 +38,9 @@ class Tank(override var x: Int, override var y: Int) : MoveAble {
             null
         } else if (y + block.height <= block.y) {
             null
-        } else if (x + block.weight <= block.x) {
+        } else if (x + block.width <= block.x) {
             null
-        } else if (block.weight + block.x <= x) {
+        } else if (block.width + block.x <= x) {
             null
         } else {
             return currentDirection
@@ -91,6 +91,36 @@ class Tank(override var x: Int, override var y: Int) : MoveAble {
         if (x > Config.width - Config.block) x = Config.width - Config.block
         if (y < 0) y = 0
         if (y > Config.height - Config.block) y = Config.height - Config.block
+    }
+
+    fun shot(): Bullet {
+        return Bullet(currentDirection) { bulletWidth, bulletHeight ->
+            var tankX = x
+            var tankY = y
+            var tankWidth = width
+            var bulletX = 0
+            var bulletY = 0
+            when (currentDirection) {
+                Direction.UP -> {
+                    bulletX = tankX + (tankWidth - bulletWidth) / 2
+                    bulletY = tankY - bulletHeight / 2
+                }
+                Direction.DOWN -> {
+                    bulletX = tankX + (tankWidth - bulletWidth) / 2
+                    bulletY = tankY + tankWidth - bulletHeight / 2
+                }
+                Direction.LEFT -> {
+                    bulletX = tankX - bulletWidth / 2
+                    bulletY = tankY + (tankWidth - bulletHeight) / 2
+                }
+                Direction.RIGHT -> {
+                    bulletX = tankX + tankWidth - bulletWidth / 2
+                    bulletY = tankY + tankWidth / 2 - bulletHeight / 2
+                }
+            }
+            Pair(bulletX, bulletY)
+        }
+
     }
 
 

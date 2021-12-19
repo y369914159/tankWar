@@ -1,4 +1,6 @@
 import business.BlockAble
+import business.DestroyAble
+import business.FlyAble
 import business.MoveAble
 import config.Config
 import enums.Direction
@@ -6,9 +8,9 @@ import javafx.application.Application
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import model.*
-import org.itheima.kotlin.game.core.Painter
 import org.itheima.kotlin.game.core.Window
 import java.io.File
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * 我的窗体
@@ -17,7 +19,9 @@ class MyWindow : Window(
     "坦克大战", "img/log.jfif",
     Config.width, Config.height
 ) {
-    var viewList = arrayListOf<View>()
+//    var viewList = arrayListOf<View>()
+    //使用线程安全的集合
+    private var viewList = CopyOnWriteArrayList<View>()
     lateinit var tank: Tank
     override fun onCreate() {
         var file = File(javaClass.getResource("/map/1.map").path)
@@ -53,6 +57,7 @@ class MyWindow : Window(
         viewList.forEach() {
             it.draw()
         }
+        println(viewList.size)
     }
 
     override fun onKeyPressed(event: KeyEvent) {
@@ -68,6 +73,9 @@ class MyWindow : Window(
             }
             KeyCode.D -> {
                 tank.move(Direction.RIGHT)
+            }
+            KeyCode.SPACE -> {
+                viewList.add(tank.shot())
             }
         }
     }
@@ -86,6 +94,14 @@ class MyWindow : Window(
                 }
             }
             move.notifyCollison(badDirection,badBlock)
+        }
+        viewList.filterIsInstance<FlyAble>().forEach(){
+            it.autoMove()
+        }
+        viewList.filterIsInstance<DestroyAble>().forEach(){
+            if(it.destroy()){
+                viewList.remove(it)
+            }
         }
     }
 }
