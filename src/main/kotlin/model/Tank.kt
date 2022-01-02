@@ -10,43 +10,8 @@ class Tank(override var x: Int, override var y: Int) : MoveAble {
     override var height: Int = Config.block
     override var width: Int = Config.block
     override var currentDirection = Direction.UP
-    override var speed = 8//每步走的像素点数
+    override var speed =16//每步走的像素点数
     private var badDirection: Direction? = null
-    override fun willCollision(block: BlockAble): Direction? {
-        //如已经发生碰撞无法移动，使用下一步的值进行预测下一步是否发生碰撞
-        var x = this.x
-        var y = this.y
-        when (currentDirection) {
-            Direction.UP -> {
-                y -= speed
-            }
-            Direction.DOWN -> {
-                y += speed
-            }
-            Direction.LEFT -> {
-                x -= speed
-            }
-            Direction.RIGHT -> {
-                x += speed
-            }
-        }
-//        println("下一步发生的x,y坐标为 $x , $y")
-//        println("阻塞块x,y坐标为 ${block.x} , ${block.y}")
-//        println("阻塞块宽度${block.height}")
-        //不发生碰撞的逻辑
-        return if (block.y + block.height <= y) {
-            null
-        } else if (y + block.height <= block.y) {
-            null
-        } else if (x + block.width <= block.x) {
-            null
-        } else if (block.width + block.x <= x) {
-            null
-        } else {
-            return currentDirection
-        }
-    }
-
     override fun notifyCollison(direction: Direction?, block: BlockAble?) {
         this.badDirection = direction;
     }

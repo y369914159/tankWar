@@ -1,7 +1,4 @@
-import business.BlockAble
-import business.DestroyAble
-import business.FlyAble
-import business.MoveAble
+import business.*
 import config.Config
 import enums.Direction
 import javafx.application.Application
@@ -46,6 +43,9 @@ class MyWindow : Window(
                         tank = Tank(coloum * Config.block, row * Config.block)
                         viewList.add(tank)
                     }
+                    'E' -> {
+                        viewList.add(Enemy(coloum * Config.block,row * Config.block))
+                    }
                 }
                 coloum++
             }
@@ -57,7 +57,7 @@ class MyWindow : Window(
         viewList.forEach() {
             it.draw()
         }
-        println(viewList.size)
+//        println(viewList.size)
     }
 
     override fun onKeyPressed(event: KeyEvent) {
@@ -84,7 +84,9 @@ class MyWindow : Window(
         viewList.filterIsInstance<MoveAble>().forEach(){ move ->
             var badDirection :Direction? = null
             var badBlock :BlockAble? = null
+
             viewList.filterIsInstance<BlockAble>().forEach(){block->
+                if(move == block) return@forEach
                //move 和block 是否碰撞
                 var direction = move.willCollision(block)
                 direction?.let {
@@ -103,6 +105,25 @@ class MyWindow : Window(
                 viewList.remove(it)
             }
         }
+        viewList.filterIsInstance<AttackAble>().forEach(){ attack ->
+            attack as AttackAble
+            viewList.filterIsInstance<SufferAble>().forEach(){ suffer ->
+                suffer as SufferAble
+                if(attack.isConllision(suffer)){
+                    //notice attack isCollision
+                    attack.notifyAttack(suffer)
+                    //notice suffer isCollision
+                    var sufferView = suffer.notifyAttack(attack)
+                    sufferView?.let {
+                        //显示爆炸物
+                        viewList.addAll(sufferView)
+                    }
+
+                    return@forEach
+                }
+            }
+        }
+
     }
 }
 
