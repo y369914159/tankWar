@@ -75,7 +75,9 @@ class MyWindow : Window(
                 tank.move(Direction.RIGHT)
             }
             KeyCode.SPACE -> {
-                viewList.add(tank.shot())
+                var shot = tank.shot()
+                shot?.let { viewList.add(shot) }
+
             }
         }
     }
@@ -107,7 +109,10 @@ class MyWindow : Window(
         }
         viewList.filterIsInstance<AttackAble>().forEach(){ attack ->
             attack as AttackAble
-            viewList.filterIsInstance<SufferAble>().forEach(){ suffer ->
+            //过滤
+
+//            viewList.filterIsInstance<SufferAble>().forEach(){ suffer ->
+            viewList.filter { (it is SufferAble ) and (attack.owner !=it) }.forEach(){ suffer ->
                 suffer as SufferAble
                 if(attack.isConllision(suffer)){
                     //notice attack isCollision
@@ -123,6 +128,14 @@ class MyWindow : Window(
                 }
             }
         }
+        viewList.filterIsInstance<AutoShotAble>().forEach(){ autoShot ->
+            autoShot as AutoShotAble
+            val shot = autoShot.autoShot()
+            shot?.let {
+                viewList.add(shot)
+            }
+        }
+
 
     }
 }

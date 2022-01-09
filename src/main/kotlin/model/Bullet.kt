@@ -9,7 +9,7 @@ import enums.Direction
 import ext.checkCollision
 import org.itheima.kotlin.game.core.Painter
 
-class Bullet(direction: Direction, create: (bulletWidth: Int, bulletHeight: Int) -> Pair<Int, Int>)
+class Bullet(override val owner: View, direction: Direction, create: (bulletWidth: Int, bulletHeight: Int) -> Pair<Int, Int>)
     : View, FlyAble, DestroyAble ,AttackAble{
 
 

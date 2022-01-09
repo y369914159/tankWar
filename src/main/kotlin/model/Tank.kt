@@ -1,17 +1,20 @@
 package model
 
-import business.BlockAble
-import business.MoveAble
+import business.*
 import config.Config
 import enums.Direction
+import org.itheima.kotlin.game.core.Composer
 import org.itheima.kotlin.game.core.Painter
 
-class Tank(override var x: Int, override var y: Int) : MoveAble {
+class Tank(override var x: Int, override var y: Int) : MoveAble,BlockAble ,SufferAble,DestroyAble{
     override var height: Int = Config.block
     override var width: Int = Config.block
     override var currentDirection = Direction.UP
     override var speed =16//每步走的像素点数
     private var badDirection: Direction? = null
+
+    override var bloold: Int = 3
+
     override fun notifyCollison(direction: Direction?, block: BlockAble?) {
         this.badDirection = direction;
     }
@@ -57,9 +60,13 @@ class Tank(override var x: Int, override var y: Int) : MoveAble {
         if (y < 0) y = 0
         if (y > Config.height - Config.block) y = Config.height - Config.block
     }
-
-    fun shot(): Bullet {
-        return Bullet(currentDirection) { bulletWidth, bulletHeight ->
+    private var lastShotTime = 0L
+    private var lastInterval = 200
+    fun shot(): Bullet? {
+        val currentTimeMillis = System.currentTimeMillis()
+        if(currentTimeMillis - lastShotTime < lastInterval) return null
+        lastShotTime = currentTimeMillis
+        return Bullet(this,currentDirection) { bulletWidth, bulletHeight ->
             var tankX = x
             var tankY = y
             var tankWidth = width
@@ -87,6 +94,13 @@ class Tank(override var x: Int, override var y: Int) : MoveAble {
         }
 
     }
-
-
+    override fun notifyAttack(attackAble: AttackAble): Array<View>? {
+        bloold -= attackAble.attackPower ;
+        //play audio
+        Composer.play("snd/hit.wav")
+        return arrayOf(Blast(x,y))
+    }
+    override fun destroy(): Boolean {
+        return bloold<=0
+    }
 }
